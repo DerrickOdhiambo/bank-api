@@ -10,7 +10,11 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 //cors
-app.use(cors());
+app.use(
+  cors({
+    origin: ['https://badbankproject-frontend.onrender.com'],
+  })
+);
 
 //middleware
 app.use(express.json());
