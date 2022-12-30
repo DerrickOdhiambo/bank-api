@@ -12,7 +12,10 @@ const port = process.env.PORT || 5000;
 //cors
 app.use(
   cors({
-    origin: ['https://badbankproject-frontend.onrender.com'],
+    origin: [
+      'https://badbankproject-frontend.onrender.com',
+      'https://badbankproject-mit.netlify.app',
+    ],
   })
 );
 
