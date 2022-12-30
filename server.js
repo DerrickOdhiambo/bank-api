@@ -14,7 +14,7 @@ app.use(
   cors({
     origin: [
       'https://badbankproject-frontend.onrender.com',
-      'https://badbankproject-mit.netlify.app',
+      'https://badbank-mit-project.netlify.app',
     ],
   })
 );
