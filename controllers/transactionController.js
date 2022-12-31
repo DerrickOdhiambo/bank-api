@@ -1,6 +1,7 @@
 const Transaction = require('../models/transactionModel');
 const Account = require('../models/accountModel');
 const mongoose = require('mongoose');
+const { find } = require('../models/accountModel');
 
 //get all transactions
 const getTransactions = async (req, res) => {
@@ -74,8 +75,71 @@ const updateBalance = async (req, res) => {
   res.status(200).json(updatedAccount);
 };
 
+// transfer cash
+const transferFunds = async (req, res) => {
+  const { id } = req.params;
+  const { accountNumber, amount } = req.body;
+
+  //checks is provide id is a valid mongoose id to avoid server crash.
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ error: 'Account does not exist' });
+  }
+
+  const userAccount = await Account.findById(id);
+  if (!userAccount) {
+    return res.status(400).json({ error: 'Account not found' });
+  }
+
+  let userBalance;
+  const initialBalance = userAccount.balance;
+
+  if (parseInt(amount) > initialBalance) {
+    return res.status(400).json({
+      error: 'Not enough funds available to make tranfer',
+    });
+  } else {
+    userBalance = initialBalance - parseInt(amount);
+  }
+
+  const updatedUserAccount = await Account.findByIdAndUpdate(
+    { _id: id },
+    { $set: { balance: userBalance } },
+    { new: true }
+  );
+
+  const account = await Account.find({ accountNumber });
+
+  const recipientAccount = account.pop();
+
+  if (!recipientAccount) {
+    return res.status(400).json({
+      error: 'Account does not exist. Please enter a valid account number',
+    });
+  }
+
+  let updatedBalance;
+  const balance = recipientAccount.balance;
+  const recipientId = recipientAccount._id;
+
+  if (account) {
+    updatedBalance = balance + parseInt(amount);
+  }
+
+  const tranferredAccount = await Account.findByIdAndUpdate(
+    { _id: recipientId },
+    { $set: { balance: updatedBalance } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    updatedUserAccount,
+    message: `Succefully transferred ${amount} $ to ${tranferredAccount.name}`,
+  });
+};
+
 module.exports = {
   getTransactions,
   transaction,
   updateBalance,
+  transferFunds,
 };
