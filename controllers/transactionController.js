@@ -107,7 +107,9 @@ const transferFunds = async (req, res) => {
     { new: true }
   );
 
-  const account = await Account.find({ accountNumber });
+  const accNumber = parseInt(accountNumber);
+
+  const account = await Account.find({ accountNumber: accNumber });
 
   const recipientAccount = account.pop();
 
@@ -133,7 +135,7 @@ const transferFunds = async (req, res) => {
 
   res.status(200).json({
     updatedUserAccount,
-    message: `Succefully transferred ${amount} $ to ${tranferredAccount.name}`,
+    message: `Succefully transferred ${amount}$ to ${tranferredAccount.name}`,
   });
 };
 
